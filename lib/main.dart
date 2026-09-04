@@ -28,13 +28,22 @@ class _MyAppState extends State<MyApp> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    print('initState dipanggil');
+  }
+
+  @override
   void dispose() {
+    print('dispose dipanggil');
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    print('build dipanggil');
+
     final hasilPencarian = daftarBarang
         .where(
           (barang) =>
@@ -47,6 +56,7 @@ class _MyAppState extends State<MyApp> {
         .toList();
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(title: const Text('Koperasi Sekolah')),
         body: Column(
@@ -67,18 +77,42 @@ class _MyAppState extends State<MyApp> {
                 },
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                'Lebar layar: ${MediaQuery.of(context).size.width.toStringAsFixed(1)}',
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
             Expanded(
-              child: ListView.builder(
-                itemCount: hasilPencarian.length,
-                itemBuilder: (context, index) {
-                  final barang = hasilPencarian[index];
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final crossAxisCount = constraints.maxWidth > 900
+                      ? 3
+                      : constraints.maxWidth > 600
+                          ? 2
+                          : 1;
 
-                  return BarangCard(
-                    nama: barang['nama'],
-                    hargaAnggota: barang['anggota'],
-                    hargaUmum: barang['umum'],
-                    stok: barang['stok'],
-                    kategori: barang['kategori'],
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(12),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 2.2,
+                    ),
+                    itemCount: hasilPencarian.length,
+                    itemBuilder: (context, index) {
+                      final barang = hasilPencarian[index];
+
+                      return BarangCard(
+                        nama: barang['nama'],
+                        hargaAnggota: barang['anggota'],
+                        hargaUmum: barang['umum'],
+                        stok: barang['stok'],
+                        kategori: barang['kategori'],
+                      );
+                    },
                   );
                 },
               ),
