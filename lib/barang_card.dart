@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'keranjang_item.dart';
 
-class BarangCard extends StatefulWidget {
+class BarangCard extends StatelessWidget {
   final String nama;
   final num hargaAnggota;
   final num hargaUmum;
@@ -18,13 +18,6 @@ class BarangCard extends StatefulWidget {
   });
 
   @override
-  State<BarangCard> createState() => _BarangCardState();
-}
-
-class _BarangCardState extends State<BarangCard> {
-  int jumlah = 1;
-
-  @override
   Widget build(BuildContext context) {
     const namaDisorot = {
       'Buku Tulis',
@@ -33,71 +26,88 @@ class _BarangCardState extends State<BarangCard> {
       'Penghapus',
       'Penggaris',
     };
-    final isDisorot = namaDisorot.contains(widget.nama);
-    final kategoriIcon = switch (widget.kategori) {
+    final isDisorot =
+        nama.startsWith('Buku Tulis') || namaDisorot.contains(nama);
+    final kategoriIcon = switch (kategori) {
       'Makanan' => Icons.restaurant,
       'Minuman' => Icons.local_drink,
       _ => Icons.edit,
     };
-    final kategoriColor = switch (widget.kategori) {
+    final kategoriColor = switch (kategori) {
       'Makanan' => Colors.orange,
       'Minuman' => Colors.teal,
       _ => Colors.indigo,
     };
-    final totalHarga = jumlah * widget.hargaAnggota;
-
     return Card(
-      color: isDisorot ? Colors.yellow.shade100 : null,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      elevation: 2,
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        leading: Tooltip(
-          message: widget.kategori,
-          child: CircleAvatar(
-            backgroundColor: kategoriColor.withValues(alpha: 0.14),
-            child: Icon(kategoriIcon, color: kategoriColor),
-          ),
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                widget.nama,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-        subtitle: Column(
+      color: isDisorot ? const Color(0xfffff7bd) : Colors.white,
+      margin: EdgeInsets.zero,
+      elevation: 1,
+      shadowColor: Colors.black12,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 5),
-            Text(
-              'Anggota  ${_formatRupiah(widget.hargaAnggota)}',
-              style: const TextStyle(fontWeight: FontWeight.w600),
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: kategoriColor.withValues(alpha: 0.14),
+                  child: Tooltip(
+                    message: kategori,
+                    child: Icon(kategoriIcon, color: kategoriColor, size: 21),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    nama,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            Text('Umum       ${_formatRupiah(widget.hargaUmum)}'),
-            Text('Stok         ${widget.stok}'),
-            const SizedBox(height: 4),
-            Text(
-              'Total      ${_formatRupiah(totalHarga)}',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
+            const SizedBox(height: 16),
+            _infoRow(
+              label: 'Anggota',
+              value: _formatRupiah(hargaAnggota),
+              bold: true,
+            ),
+            _infoRow(label: 'Umum', value: _formatRupiah(hargaUmum)),
+            _infoRow(label: 'Stok', value: '$stok'),
+            const Spacer(),
+            const Divider(height: 20),
+            Align(
+              alignment: Alignment.centerRight,
+              child: KeranjangItem(stok: stok, hargaAnggota: hargaAnggota),
             ),
           ],
         ),
-        trailing: KeranjangItem(
-          stok: widget.stok,
-          onJumlahChanged: (nilaiBaru) {
-            setState(() {
-              jumlah = nilaiBaru;
-            });
-          },
-        ),
+      ),
+    );
+  }
+
+  Widget _infoRow({
+    required String label,
+    required String value,
+    bool bold = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          SizedBox(width: 68, child: Text(label)),
+          Text(
+            value,
+            style: TextStyle(fontWeight: bold ? FontWeight.w700 : null),
+          ),
+        ],
       ),
     );
   }
